@@ -1,10 +1,25 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 
 function App() {
+  const [session, setSession] = useState(null)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session)
+    })
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   async function handleLogin(event) {
     event.preventDefault()
@@ -18,6 +33,20 @@ function App() {
     if (error) {
       setError('Fel e-postadress eller lösenord.')
     }
+  }
+
+  async function handleLogout() {
+    await supabase.auth.signOut()
+  }
+
+  if (session) {
+    return (
+      <main>
+        <h1>EcoSave Admin</h1>
+        <p>Du är inloggad.</p>
+        <button onClick={handleLogout}>Logga ut</button>
+      </main>
+    )
   }
 
   return (
