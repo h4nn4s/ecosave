@@ -3,6 +3,7 @@ import { supabase } from './lib/supabase'
 
 function App() {
   const [session, setSession] = useState(null)
+  const [categories, setCategories] = useState([])
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -20,6 +21,26 @@ function App() {
 
     return () => subscription.unsubscribe()
   }, [])
+
+  useEffect(() => {
+    if (!session) return
+
+    async function fetchCategories() {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name')
+
+      if (error) {
+        setError('Kunde inte hämta kategorier.')
+        return
+      }
+
+      setCategories(data)
+    }
+
+    fetchCategories()
+  }, [session])
 
   async function handleLogin(event) {
     event.preventDefault()
@@ -43,7 +64,21 @@ function App() {
     return (
       <main>
         <h1>EcoSave Admin</h1>
+
         <p>Du är inloggad.</p>
+
+        <h2>Kategorier</h2>
+
+        {categories.length === 0 ? (
+          <p>Inga kategorier ännu.</p>
+        ) : (
+          <ul>
+            {categories.map((category) => (
+              <li key={category.id}>{category.name}</li>
+            ))}
+          </ul>
+        )}
+
         <button onClick={handleLogout}>Logga ut</button>
       </main>
     )
