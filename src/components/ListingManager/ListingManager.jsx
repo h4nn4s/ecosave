@@ -201,6 +201,32 @@ function ListingManager({ onError }) {
         )
     }
 
+    async function handleToggleActive(listing) {
+        const { data, error } = await supabase
+            .from('listings')
+            .update({
+                active: !listing.active,
+            })
+            .eq('id', listing.id)
+            .select(`
+      *,
+      products(name, brand),
+      stores(name)
+    `)
+            .single()
+
+        if (error) {
+            onError('Kunde inte ändra listningens status.')
+            return
+        }
+
+        setListings((current) =>
+            current.map((item) =>
+                item.id === data.id ? data : item
+            )
+        )
+    }
+
     return (
         <section>
             <h2>Listningar</h2>
@@ -455,6 +481,13 @@ function ListingManager({ onError }) {
                                         onClick={() => handleDeleteListing(listing)}
                                     >
                                         Ta bort
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => handleToggleActive(listing)}
+                                    >
+                                        {listing.active ? 'Inaktivera' : 'Aktivera'}
                                     </button>
                                 </>
                             )}
