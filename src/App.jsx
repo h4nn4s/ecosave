@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
+
 import CategoryManager from './components/CategoryManager/CategoryManager'
+import ProductManager from './components/ProductManager/ProductManager'
 
 function App() {
   const [session, setSession] = useState(null)
@@ -48,6 +50,8 @@ function App() {
         <p>Du är inloggad.</p>
 
         <CategoryManager onError={setError} />
+
+        <ProductManager onError={setError} />
 
         {error && <p>{error}</p>}
 
