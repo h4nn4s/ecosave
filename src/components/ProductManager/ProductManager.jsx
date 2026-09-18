@@ -120,25 +120,27 @@ function ProductManager({ onError }) {
     })
   }
 
-  async function handleDeleteProduct(product) {
-    const confirmed = window.confirm(
-      `Är du säker på att du vill ta bort produkten "${product.name}"?`
-    )
-
-    if (!confirmed) return
-
-    const { error } = await supabase
+  async function handleToggleActive(product) {
+    const { data, error } = await supabase
       .from('products')
-      .delete()
+      .update({
+        active: !product.active,
+      })
       .eq('id', product.id)
+      .select('*, categories(name)')
+      .single()
 
     if (error) {
-      onError('Kunde inte ta bort produkten.')
+      onError('Kunde inte ändra produktens status.')
       return
     }
 
     setProducts((current) =>
-      current.filter((item) => item.id !== product.id)
+      current
+        .map((item) =>
+          item.id === data.id ? data : item
+        )
+        .sort((a, b) => a.name.localeCompare(b.name))
     )
   }
 
@@ -262,9 +264,14 @@ function ProductManager({ onError }) {
               ) : (
                 <>
                   {product.name}
-                  {product.brand && ` – ${product.brand}`}
+
+                  {product.brand &&
+                    ` – ${product.brand}`}
+
                   {product.categories &&
                     ` (${product.categories.name})`}
+
+                  {` | ${product.active ? 'Aktiv' : 'Inaktiv'}`}
 
                   <button
                     type="button"
@@ -282,9 +289,9 @@ function ProductManager({ onError }) {
 
                   <button
                     type="button"
-                    onClick={() => handleDeleteProduct(product)}
+                    onClick={() => handleToggleActive(product)}
                   >
-                    Ta bort
+                    {product.active ? 'Inaktivera' : 'Aktivera'}
                   </button>
                 </>
               )}
