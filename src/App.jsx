@@ -4,6 +4,7 @@ import { supabase } from './lib/supabase'
 import CategoryManager from './components/CategoryManager/CategoryManager'
 import ProductManager from './components/ProductManager/ProductManager'
 import StoreManager from './components/StoreManager/StoreManager'
+import ListingManager from './components/ListingManager/ListingManager'
 
 
 function App() {
@@ -56,6 +57,8 @@ function App() {
         <ProductManager onError={setError} />
 
         <StoreManager onError={setError} />
+
+        <ListingManager onError={setError} />
 
         {error && <p>{error}</p>}
 
