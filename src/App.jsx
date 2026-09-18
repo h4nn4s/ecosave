@@ -3,6 +3,8 @@ import { supabase } from './lib/supabase'
 
 import CategoryManager from './components/CategoryManager/CategoryManager'
 import ProductManager from './components/ProductManager/ProductManager'
+import StoreManager from './components/StoreManager/StoreManager'
+
 
 function App() {
   const [session, setSession] = useState(null)
@@ -52,6 +54,8 @@ function App() {
         <CategoryManager onError={setError} />
 
         <ProductManager onError={setError} />
+
+        <StoreManager onError={setError} />
 
         {error && <p>{error}</p>}
 
