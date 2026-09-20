@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
+
 import { supabase } from './lib/supabase'
 
 import CategoryManager from './components/CategoryManager/CategoryManager'
+
 import ProductManager from './components/ProductManager/ProductManager'
-import StoreManager from './components/StoreManager/StoreManager'
-import ListingManager from './components/ListingManager/ListingManager'
+
 import ProductForm from './components/ProductForm/ProductForm'
 
 
@@ -13,7 +14,7 @@ function App() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
+ 
   const [activeView, setActiveView] = useState('add')
 
   useEffect(() => {
@@ -32,6 +33,7 @@ function App() {
 
   async function handleLogin(event) {
     event.preventDefault()
+
     setError('')
 
     const { error } = await supabase.auth.signInWithPassword({
@@ -54,12 +56,15 @@ function App() {
         <h1>EcoSave Admin</h1>
 
         <p>Du är inloggad.</p>
+
         <nav>
           <button onClick={() => setActiveView('add')}>
-            Lägg till
+            Lägg till produkt och kategori
           </button>
 
-          <button onClick={() => setActiveView('products')}>
+          <button
+            onClick={() => setActiveView('products')}
+          >
             Hantera produkter
           </button>
         </nav>
@@ -67,29 +72,20 @@ function App() {
         {activeView === 'add' && (
           <>
             <CategoryManager onError={setError} />
+
             <ProductForm onError={setError} />
           </>
         )}
 
         {activeView === 'products' && (
-          <>
-            <ProductManager
-              onError={setError}
-              onProductStatusChange={() =>
-                setRefreshTrigger((current) => current + 1)
-              }
-            />
-
-            <ListingManager
-              onError={setError}
-              refreshTrigger={refreshTrigger}
-            />
-          </>
+          <ProductManager onError={setError} />
         )}
 
         {error && <p>{error}</p>}
 
-        <button onClick={handleLogout}>Logga ut</button>
+        <button onClick={handleLogout}>
+          Logga ut
+        </button>
       </main>
     )
   }
@@ -101,23 +97,31 @@ function App() {
       <form onSubmit={handleLogin}>
         <label>
           E-post
+
           <input
             type="email"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={(event) =>
+              setEmail(event.target.value)
+            }
           />
         </label>
 
         <label>
           Lösenord
+
           <input
             type="password"
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={(event) =>
+              setPassword(event.target.value)
+            }
           />
         </label>
 
-        <button type="submit">Logga in</button>
+        <button type="submit">
+          Logga in
+        </button>
 
         {error && <p>{error}</p>}
       </form>
