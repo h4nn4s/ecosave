@@ -2,10 +2,22 @@ import { useEffect, useState } from 'react'
 
 import { supabase } from '../../lib/supabase'
 
-function ListingManager({ onError }) {
+import AddProduct from '../AddProduct/AddProduct'
+import ProductList from '../ProductList/ProductList'
+
+function ListingManager({ onError, refreshTrigger }) {
     const [listings, setListings] = useState([])
     const [products, setProducts] = useState([])
     const [stores, setStores] = useState([])
+    const [productSearch, setProductSearch] = useState('')
+
+    const filteredProducts = products.filter((product) => {
+        const search = productSearch.toLowerCase()
+
+        return `${product.name} ${product.brand || ''}`
+            .toLowerCase()
+            .includes(search)
+    })
 
     const [newListing, setNewListing] = useState({
         product_id: '',
@@ -31,10 +43,10 @@ function ListingManager({ onError }) {
             const { data: listingData, error: listingError } = await supabase
                 .from('listings')
                 .select(`
-          *,
-          products(name, brand),
-          stores(name)
-        `)
+                    *,
+                    products(name, brand, categories(name)),
+                    stores(name)
+                    `)
                 .order('created_at', { ascending: false })
 
             if (listingError) {
@@ -44,7 +56,7 @@ function ListingManager({ onError }) {
 
             const { data: productData, error: productError } = await supabase
                 .from('products')
-                .select('*')
+                .select('*, categories(name)')
                 .order('name')
 
             if (productError) {
@@ -68,7 +80,7 @@ function ListingManager({ onError }) {
         }
 
         fetchData()
-    }, [onError])
+    }, [onError, refreshTrigger])
 
     function getExpiresAt(bestBefore) {
         return `${bestBefore}T22:00:00`
@@ -121,6 +133,8 @@ function ListingManager({ onError }) {
             best_before: '',
             reason: '',
         })
+
+        setProductSearch('')
     }
 
     async function handleUpdateListing(event) {
@@ -229,272 +243,29 @@ function ListingManager({ onError }) {
 
     return (
         <section>
-            <h2>Listningar</h2>
+            <AddProduct
+                products={products}
+                stores={stores}
+                productSearch={productSearch}
+                setProductSearch={setProductSearch}
+                filteredProducts={filteredProducts}
+                newListing={newListing}
+                setNewListing={setNewListing}
+                onAddListing={handleAddListing}
+            />
 
-            <form onSubmit={handleAddListing}>
-                <select
-                    value={newListing.product_id}
-                    onChange={(event) =>
-                        setNewListing({
-                            ...newListing,
-                            product_id: event.target.value,
-                        })
-                    }
-                >
-                    <option value="">Välj produkt</option>
-
-                    {products.map((product) => (
-                        <option key={product.id} value={product.id}>
-                            {product.name}
-                            {product.brand && ` – ${product.brand}`}
-                        </option>
-                    ))}
-                </select>
-
-                <select
-                    value={newListing.store_id}
-                    onChange={(event) =>
-                        setNewListing({
-                            ...newListing,
-                            store_id: event.target.value,
-                        })
-                    }
-                >
-                    <option value="">Välj butik</option>
-
-                    {stores.map((store) => (
-                        <option key={store.id} value={store.id}>
-                            {store.name}
-                        </option>
-                    ))}
-                </select>
-
-                <input
-                    type="number"
-                    min="1"
-                    value={newListing.quantity}
-                    onChange={(event) =>
-                        setNewListing({
-                            ...newListing,
-                            quantity: event.target.value,
-                        })
-                    }
-                    placeholder="Antal"
-                />
-
-                <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={newListing.price}
-                    onChange={(event) =>
-                        setNewListing({
-                            ...newListing,
-                            price: event.target.value,
-                        })
-                    }
-                    placeholder="Pris"
-                />
-
-                <label>
-                    Bäst före
-                    <input
-                        type="date"
-                        value={newListing.best_before}
-                        onChange={(event) =>
-                            setNewListing({
-                                ...newListing,
-                                best_before: event.target.value,
-                            })
-                        }
-                    />
-                </label>
-
-                <input
-                    type="text"
-                    value={newListing.reason}
-                    onChange={(event) =>
-                        setNewListing({
-                            ...newListing,
-                            reason: event.target.value,
-                        })
-                    }
-                    placeholder="Anledning"
-                />
-
-                <button type="submit">Lägg till listning</button>
-            </form>
-
-            {listings.length === 0 ? (
-                <p>Inga listningar ännu.</p>
-            ) : (
-                <ul>
-                    {listings.map((listing) => (
-                        <li key={listing.id}>
-                            {editingListing?.id === listing.id ? (
-                                <form onSubmit={handleUpdateListing}>
-                                    <select
-                                        value={editedListing.product_id}
-                                        onChange={(event) =>
-                                            setEditedListing({
-                                                ...editedListing,
-                                                product_id: event.target.value,
-                                            })
-                                        }
-                                    >
-                                        <option value="">Välj produkt</option>
-
-                                        {products.map((product) => (
-                                            <option key={product.id} value={product.id}>
-                                                {product.name}
-                                                {product.brand && ` – ${product.brand}`}
-                                            </option>
-                                        ))}
-                                    </select>
-
-                                    <select
-                                        value={editedListing.store_id}
-                                        onChange={(event) =>
-                                            setEditedListing({
-                                                ...editedListing,
-                                                store_id: event.target.value,
-                                            })
-                                        }
-                                    >
-                                        <option value="">Välj butik</option>
-
-                                        {stores.map((store) => (
-                                            <option key={store.id} value={store.id}>
-                                                {store.name}
-                                            </option>
-                                        ))}
-                                    </select>
-
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        value={editedListing.quantity}
-                                        onChange={(event) =>
-                                            setEditedListing({
-                                                ...editedListing,
-                                                quantity: event.target.value,
-                                            })
-                                        }
-                                    />
-
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        value={editedListing.price}
-                                        onChange={(event) =>
-                                            setEditedListing({
-                                                ...editedListing,
-                                                price: event.target.value,
-                                            })
-                                        }
-                                    />
-
-                                    <label>
-                                        Bäst före
-                                        <input
-                                            type="date"
-                                            value={editedListing.best_before}
-                                            onChange={(event) =>
-                                                setEditedListing({
-                                                    ...editedListing,
-                                                    best_before: event.target.value,
-                                                })
-                                            }
-                                        />
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        value={editedListing.reason}
-                                        onChange={(event) =>
-                                            setEditedListing({
-                                                ...editedListing,
-                                                reason: event.target.value,
-                                            })
-                                        }
-                                        placeholder="Anledning"
-                                    />
-
-                                    <button type="submit">Spara</button>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setEditingListing(null)
-                                            setEditedListing({
-                                                product_id: '',
-                                                store_id: '',
-                                                quantity: '',
-                                                price: '',
-                                                best_before: '',
-                                                reason: '',
-                                            })
-                                        }}
-                                    >
-                                        Avbryt
-                                    </button>
-                                </form>
-                            ) : (
-                                <>
-                                    {listing.products?.name}
-
-                                    {listing.products?.brand &&
-                                        ` – ${listing.products.brand}`}
-
-                                    {` | ${listing.quantity} st`}
-
-                                    {` | ${listing.price} kr`}
-
-                                    {` | ${listing.stores?.name}`}
-
-                                    {` | Bäst före: ${listing.best_before}`}
-
-                                    {listing.reason &&
-                                        ` | ${listing.reason}`}
-
-                                    {` | ${listing.active ? 'Aktiv' : 'Inaktiv'}`}
-
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setEditingListing(listing)
-                                            setEditedListing({
-                                                product_id: listing.product_id,
-                                                store_id: listing.store_id,
-                                                quantity: listing.quantity,
-                                                price: listing.price,
-                                                best_before: listing.best_before,
-                                                reason: listing.reason || '',
-                                            })
-                                        }}
-                                    >
-                                        Redigera
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleDeleteListing(listing)}
-                                    >
-                                        Ta bort
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => handleToggleActive(listing)}
-                                    >
-                                        {listing.active ? 'Inaktivera' : 'Aktivera'}
-                                    </button>
-                                </>
-                            )}
-                        </li>
-                    ))}
-                </ul>
-            )}
+            <ProductList
+                listings={listings}
+                products={products}
+                stores={stores}
+                editingListing={editingListing}
+                setEditingListing={setEditingListing}
+                editedListing={editedListing}
+                setEditedListing={setEditedListing}
+                handleUpdateListing={handleUpdateListing}
+                handleDeleteListing={handleDeleteListing}
+                handleToggleActive={handleToggleActive}
+            />
         </section>
     )
 }

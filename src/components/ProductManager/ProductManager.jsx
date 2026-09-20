@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { supabase } from '../../lib/supabase'
 
-function ProductManager({ onError }) {
+function ProductManager({ onError, onProductStatusChange }) {
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [newProduct, setNewProduct] = useState({
@@ -121,10 +121,12 @@ function ProductManager({ onError }) {
   }
 
   async function handleToggleActive(product) {
+    const newActive = !product.active
+
     const { data, error } = await supabase
       .from('products')
       .update({
-        active: !product.active,
+        active: newActive,
       })
       .eq('id', product.id)
       .select('*, categories(name)')
@@ -142,57 +144,13 @@ function ProductManager({ onError }) {
         )
         .sort((a, b) => a.name.localeCompare(b.name))
     )
+
+    onProductStatusChange()
   }
 
   return (
     <section>
-      <h2>Produkter</h2>
-
-      <form onSubmit={handleAddProduct}>
-        <input
-          type="text"
-          value={newProduct.name}
-          onChange={(event) =>
-            setNewProduct({
-              ...newProduct,
-              name: event.target.value,
-            })
-          }
-          placeholder="Produktnamn"
-        />
-
-        <input
-          type="text"
-          value={newProduct.brand}
-          onChange={(event) =>
-            setNewProduct({
-              ...newProduct,
-              brand: event.target.value,
-            })
-          }
-          placeholder="Varumärke"
-        />
-
-        <select
-          value={newProduct.category_id}
-          onChange={(event) =>
-            setNewProduct({
-              ...newProduct,
-              category_id: event.target.value,
-            })
-          }
-        >
-          <option value="">Välj kategori</option>
-
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-
-        <button type="submit">Lägg till produkt</button>
-      </form>
+      <h2>Hantera produkter</h2>
 
       {products.length === 0 ? (
         <p>Inga produkter ännu.</p>

@@ -5,6 +5,7 @@ import CategoryManager from './components/CategoryManager/CategoryManager'
 import ProductManager from './components/ProductManager/ProductManager'
 import StoreManager from './components/StoreManager/StoreManager'
 import ListingManager from './components/ListingManager/ListingManager'
+import ProductForm from './components/ProductForm/ProductForm'
 
 
 function App() {
@@ -12,6 +13,8 @@ function App() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [activeView, setActiveView] = useState('add')
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -51,14 +54,38 @@ function App() {
         <h1>EcoSave Admin</h1>
 
         <p>Du är inloggad.</p>
+        <nav>
+          <button onClick={() => setActiveView('add')}>
+            Lägg till
+          </button>
 
-        <CategoryManager onError={setError} />
+          <button onClick={() => setActiveView('products')}>
+            Hantera produkter
+          </button>
+        </nav>
 
-        <ProductManager onError={setError} />
+        {activeView === 'add' && (
+          <>
+            <CategoryManager onError={setError} />
+            <ProductForm onError={setError} />
+          </>
+        )}
 
-        <StoreManager onError={setError} />
+        {activeView === 'products' && (
+          <>
+            <ProductManager
+              onError={setError}
+              onProductStatusChange={() =>
+                setRefreshTrigger((current) => current + 1)
+              }
+            />
 
-        <ListingManager onError={setError} />
+            <ListingManager
+              onError={setError}
+              refreshTrigger={refreshTrigger}
+            />
+          </>
+        )}
 
         {error && <p>{error}</p>}
 
