@@ -29,7 +29,7 @@ function AddProduct({
 
             {productSearch && !newListing.product_id && (
                 <div>
-                    {filteredProducts.length === 0 ? (
+                    {filteredProducts.filter((product) => product.active).length === 0 ? (
                         <p>
                             Ingen produkt hittades.
                             <br />
@@ -49,10 +49,9 @@ function AddProduct({
                                                     product_id: String(product.id),
                                                 })
                                                 setProductSearch(
-                                                    `${product.name}${
-                                                        product.brand
-                                                            ? ` – ${product.brand}`
-                                                            : ''
+                                                    `${product.name}${product.brand
+                                                        ? ` – ${product.brand}`
+                                                        : ''
                                                     }`
                                                 )
                                             }}
