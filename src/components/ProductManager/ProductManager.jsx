@@ -5,11 +5,8 @@ import { supabase } from '../../lib/supabase'
 function ProductManager({ onError, onProductStatusChange }) {
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
-  const [newProduct, setNewProduct] = useState({
-    name: '',
-    brand: '',
-    category_id: '',
-  })
+  const [listings, setListings] = useState([])
+
   const [editingProduct, setEditingProduct] = useState(null)
   const [editedProduct, setEditedProduct] = useState({
     name: '',
@@ -39,47 +36,22 @@ function ProductManager({ onError, onProductStatusChange }) {
         return
       }
 
+      const { data: listingData, error: listingError } = await supabase
+        .from('listings')
+        .select('id, product_id, active')
+
+      if (listingError) {
+        onError('Kunde inte hämta produktutbud.')
+        return
+      }
+
       setProducts(productData)
       setCategories(categoryData)
+      setListings(listingData)
     }
 
     fetchData()
   }, [onError])
-
-  async function handleAddProduct(event) {
-    event.preventDefault()
-
-    if (!newProduct.name.trim() || !newProduct.category_id) {
-      return
-    }
-
-    const { data, error } = await supabase
-      .from('products')
-      .insert({
-        name: newProduct.name.trim(),
-        brand: newProduct.brand.trim() || null,
-        category_id: Number(newProduct.category_id),
-      })
-      .select('*, categories(name)')
-      .single()
-
-    if (error) {
-      onError('Kunde inte skapa produkten.')
-      return
-    }
-
-    setProducts((current) =>
-      [...current, data].sort((a, b) =>
-        a.name.localeCompare(b.name)
-      )
-    )
-
-    setNewProduct({
-      name: '',
-      brand: '',
-      category_id: '',
-    })
-  }
 
   async function handleUpdateProduct(event) {
     event.preventDefault()
@@ -148,6 +120,25 @@ function ProductManager({ onError, onProductStatusChange }) {
     onProductStatusChange()
   }
 
+  function getListingCount(productId) {
+    return listings.filter(
+      (listing) =>
+        listing.product_id === productId && listing.active
+    ).length
+  }
+
+  const groupedProducts = products.reduce((groups, product) => {
+    const category = product.categories?.name || 'Övrigt'
+
+    if (!groups[category]) {
+      groups[category] = []
+    }
+
+    groups[category].push(product)
+
+    return groups
+  }, {})
+
   return (
     <section>
       <h2>Hantera produkter</h2>
@@ -155,107 +146,163 @@ function ProductManager({ onError, onProductStatusChange }) {
       {products.length === 0 ? (
         <p>Inga produkter ännu.</p>
       ) : (
-        <ul>
-          {products.map((product) => (
-            <li key={product.id}>
-              {editingProduct?.id === product.id ? (
-                <form onSubmit={handleUpdateProduct}>
-                  <input
-                    type="text"
-                    value={editedProduct.name}
-                    onChange={(event) =>
-                      setEditedProduct({
-                        ...editedProduct,
-                        name: event.target.value,
-                      })
-                    }
-                  />
+        Object.entries(groupedProducts)
+          .sort(([categoryA], [categoryB]) =>
+            categoryA.localeCompare(categoryB)
+          )
+          .map(([category, categoryProducts]) => (
+            <div key={category}>
+              <h3>{category}</h3>
 
-                  <input
-                    type="text"
-                    value={editedProduct.brand}
-                    onChange={(event) =>
-                      setEditedProduct({
-                        ...editedProduct,
-                        brand: event.target.value,
-                      })
-                    }
-                  />
+              <table>
+                <thead>
+                  <tr>
+                    <th>Produkt</th>
+                    <th>Märke</th>
+                    <th>Utbud</th>
+                    <th>Status</th>
+                    <th>Åtgärder</th>
+                  </tr>
+                </thead>
 
-                  <select
-                    value={editedProduct.category_id}
-                    onChange={(event) =>
-                      setEditedProduct({
-                        ...editedProduct,
-                        category_id: event.target.value,
-                      })
-                    }
-                  >
-                    <option value="">Välj kategori</option>
+                <tbody>
+                  {categoryProducts.map((product) => (
+                    <tr key={product.id}>
+                      {editingProduct?.id === product.id ? (
+                        <>
+                          <td>
+                            <input
+                              type="text"
+                              value={editedProduct.name}
+                              onChange={(event) =>
+                                setEditedProduct({
+                                  ...editedProduct,
+                                  name: event.target.value,
+                                })
+                              }
+                            />
+                          </td>
 
-                    {categories.map((category) => (
-                      <option
-                        key={category.id}
-                        value={category.id}
-                      >
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
+                          <td>
+                            <input
+                              type="text"
+                              value={editedProduct.brand}
+                              onChange={(event) =>
+                                setEditedProduct({
+                                  ...editedProduct,
+                                  brand: event.target.value,
+                                })
+                              }
+                            />
+                          </td>
 
-                  <button type="submit">Spara</button>
+                          <td>
+                            {getListingCount(product.id)}
+                          </td>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingProduct(null)
-                      setEditedProduct({
-                        name: '',
-                        brand: '',
-                        category_id: '',
-                      })
-                    }}
-                  >
-                    Avbryt
-                  </button>
-                </form>
-              ) : (
-                <>
-                  {product.name}
+                          <td>
+                            {product.active
+                              ? 'Aktiv'
+                              : 'Inaktiv'}
+                          </td>
 
-                  {product.brand &&
-                    ` – ${product.brand}`}
+                          <td>
+                            <form onSubmit={handleUpdateProduct}>
+                              <select
+                                value={editedProduct.category_id}
+                                onChange={(event) =>
+                                  setEditedProduct({
+                                    ...editedProduct,
+                                    category_id:
+                                      event.target.value,
+                                  })
+                                }
+                              >
+                                <option value="">
+                                  Välj kategori
+                                </option>
 
-                  {product.categories &&
-                    ` (${product.categories.name})`}
+                                {categories.map((category) => (
+                                  <option
+                                    key={category.id}
+                                    value={category.id}
+                                  >
+                                    {category.name}
+                                  </option>
+                                ))}
+                              </select>
 
-                  {` | ${product.active ? 'Aktiv' : 'Inaktiv'}`}
+                              <button type="submit">
+                                Spara
+                              </button>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingProduct(product)
-                      setEditedProduct({
-                        name: product.name,
-                        brand: product.brand || '',
-                        category_id: product.category_id,
-                      })
-                    }}
-                  >
-                    Redigera
-                  </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingProduct(null)
+                                  setEditedProduct({
+                                    name: '',
+                                    brand: '',
+                                    category_id: '',
+                                  })
+                                }}
+                              >
+                                Avbryt
+                              </button>
+                            </form>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td>{product.name}</td>
 
-                  <button
-                    type="button"
-                    onClick={() => handleToggleActive(product)}
-                  >
-                    {product.active ? 'Inaktivera' : 'Aktivera'}
-                  </button>
-                </>
-              )}
-            </li>
-          ))}
-        </ul>
+                          <td>{product.brand || '-'}</td>
+
+                          <td>
+                            {getListingCount(product.id)}
+                          </td>
+
+                          <td>
+                            {product.active
+                              ? 'Aktiv'
+                              : 'Inaktiv'}
+                          </td>
+
+                          <td>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingProduct(product)
+                                setEditedProduct({
+                                  name: product.name,
+                                  brand: product.brand || '',
+                                  category_id:
+                                    product.category_id,
+                                })
+                              }}
+                            >
+                              Redigera
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleToggleActive(product)
+                              }
+                            >
+                              {product.active
+                                ? 'Inaktivera'
+                                : 'Aktivera'}
+                            </button>
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))
       )}
     </section>
   )
