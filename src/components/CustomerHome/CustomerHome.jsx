@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
 
+import CustomerNavigation from '../CustomerNavigation/CustomerNavigation'
+
 function CustomerHome() {
   return (
     <main className="customer-page customer-home">
@@ -27,6 +29,9 @@ function CustomerHome() {
           Du hittar varorna i butiken och handlar dem på plats.
         </p>
       </section>
+
+      <CustomerNavigation />
+    
     </main>
   )
 }

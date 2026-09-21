@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
+import CustomerNavigation from '../CustomerNavigation/CustomerNavigation'
+
 function CustomerListings() {
   const [listings, setListings] = useState([])
   const [selectedProduct, setSelectedProduct] = useState(null)
@@ -127,6 +129,9 @@ function CustomerListings() {
             ))}
           </>
         )}
+
+        <CustomerNavigation />
+      
       </main>
     )
   }
@@ -202,6 +207,9 @@ function CustomerListings() {
           </section>
         ))
       )}
+
+      <CustomerNavigation />
+
     </main>
   )
 }
