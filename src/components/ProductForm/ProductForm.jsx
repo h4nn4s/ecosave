@@ -7,6 +7,7 @@ function ProductForm({ onError, categoryVersion }) {
     name: '',
     brand: '',
     category_id: '',
+    image_url: '',
   })
 
   useEffect(() => {
@@ -27,6 +28,16 @@ function ProductForm({ onError, categoryVersion }) {
     fetchCategories()
   }, [onError, categoryVersion])
 
+  function getProductImage(name) {
+    const productName = name.trim().toLowerCase()
+
+    if (productName.includes('kvarg')) return '/products/kvarg.jpg'
+    if (productName.includes('levain')) return '/products/levain.jpg'
+    if (productName.includes('pasta')) return '/products/pasta.jpg'
+
+    return null
+  }
+
   async function handleAddProduct(event) {
     event.preventDefault()
 
@@ -40,6 +51,7 @@ function ProductForm({ onError, categoryVersion }) {
         name: newProduct.name.trim(),
         brand: newProduct.brand.trim() || null,
         category_id: Number(newProduct.category_id),
+        image_url: getProductImage(newProduct.name),
       })
 
     if (error) {
@@ -73,14 +85,16 @@ function ProductForm({ onError, categoryVersion }) {
 
         <input
           type="text"
-          value={newProduct.brand}
+          value={newProduct.image_url}
           onChange={(event) =>
             setNewProduct({
-              ...newProduct,
-              brand: event.target.value,
+              name: '',
+              brand: '',
+              category_id: '',
+              image_url: '',
             })
           }
-          placeholder="Varumärke"
+          placeholder="Bild-URL"
         />
 
         <select
