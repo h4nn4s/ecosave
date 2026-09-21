@@ -14,7 +14,8 @@ function App() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
- 
+  const [categoryVersion, setCategoryVersion] = useState(0)
+
   const [activeView, setActiveView] = useState('add')
 
   useEffect(() => {
@@ -71,9 +72,15 @@ function App() {
 
         {activeView === 'add' && (
           <>
-            <CategoryManager onError={setError} />
+            <CategoryManager
+              onError={setError}
+              onCategoryChange={() => setCategoryVersion((current) => current + 1)}
+            />
 
-            <ProductForm onError={setError} />
+            <ProductForm
+              onError={setError}
+              categoryVersion={categoryVersion}
+            />
           </>
         )}
 

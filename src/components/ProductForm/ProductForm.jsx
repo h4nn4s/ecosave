@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
-function ProductForm({ onError }) {
+function ProductForm({ onError, categoryVersion }) {
   const [categories, setCategories] = useState([])
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -25,7 +25,7 @@ function ProductForm({ onError }) {
     }
 
     fetchCategories()
-  }, [onError])
+  }, [onError, categoryVersion])
 
   async function handleAddProduct(event) {
     event.preventDefault()

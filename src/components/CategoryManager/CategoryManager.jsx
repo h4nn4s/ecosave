@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
-function CategoryManager({ onError }) {
+function CategoryManager({ onError, onCategoryChange }) {
   const [categories, setCategories] = useState([])
   const [newCategory, setNewCategory] = useState('')
   const [editingCategory, setEditingCategory] = useState(null)
@@ -47,6 +47,7 @@ function CategoryManager({ onError }) {
       )
     )
 
+    onCategoryChange()
     setNewCategory('')
   }
 
@@ -75,6 +76,8 @@ function CategoryManager({ onError }) {
         .sort((a, b) => a.name.localeCompare(b.name))
     )
 
+    onCategoryChange()
+
     setEditingCategory(null)
     setEditedCategoryName('')
   }
@@ -99,6 +102,8 @@ function CategoryManager({ onError }) {
     setCategories((current) =>
       current.filter((item) => item.id !== category.id)
     )
+    
+    onCategoryChange()
   }
 
   return (
