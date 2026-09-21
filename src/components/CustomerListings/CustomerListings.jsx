@@ -74,7 +74,7 @@ function CustomerListings() {
 
   if (selectedProduct) {
     return (
-      <main>
+      <main className="customer-page">
         <button
           type="button"
           onClick={() => setSelectedProduct(null)}
@@ -88,12 +88,11 @@ function CustomerListings() {
           <img
             src={selectedProduct.product.image_url}
             alt={selectedProduct.product.name}
+            className="customer-product-image"
           />
         )}
 
-        <p>
-          {selectedProduct.product.categories?.name}
-        </p>
+        <p>{selectedProduct.product.categories?.name}</p>
 
         {selectedProduct.product.brand && (
           <p>{selectedProduct.product.brand}</p>
@@ -117,15 +116,9 @@ function CustomerListings() {
 
             {selectedProduct.listings.map((listing) => (
               <article key={listing.id}>
-                <p>
-                  {listing.price} kr
-                </p>
-                <p>
-                  {listing.quantity} st
-                </p>
-                <p>
-                  Bäst före: {listing.best_before}
-                </p>
+                <p>{listing.price} kr</p>
+                <p>{listing.quantity} st</p>
+                <p>Bäst före: {listing.best_before}</p>
 
                 {listing.reason && (
                   <p>{listing.reason}</p>
@@ -139,7 +132,7 @@ function CustomerListings() {
   }
 
   return (
-    <main>
+    <main className="customer-page">
       <h1>Utbud</h1>
 
       <a href="/">Till startsidan</a>
@@ -156,46 +149,56 @@ function CustomerListings() {
           <section key={category}>
             <h2>{category}</h2>
 
-            {products.map(({ product, listings: productListings }) => (
-              <article
-                key={product.id}
-                onClick={() =>
-                  setSelectedProduct({
-                    product,
-                    listings: productListings,
-                  })
-                }
-              >
-                <h3>{product.name}</h3>
+            <div className="customer-products">
+              {products.map(({ product, listings: productListings }) => (
+                <article
+                  key={product.id}
+                  className="customer-product-card"
+                  onClick={() =>
+                    setSelectedProduct({
+                      product,
+                      listings: productListings,
+                    })
+                  }
+                >
+                  <div className="customer-product-image-wrapper">
+                    {product.image_url && (
+                      <img
+                        src={product.image_url}
+                        alt={product.name}
+                        className="customer-product-image"
+                      />
+                    )}
 
-                {product.image_url && (
-                  <img
-                    src={product.image_url}
-                    alt={product.name}
-                  />
-                )}
+                    {productListings.length === 1 && (
+                      <span className="customer-product-price-badge">
+                        {productListings[0].price} kr
+                      </span>
+                    )}
+                  </div>
 
-                <p>Visa mer</p>
+                  <div className="customer-product-info">
+                    <h3>{product.name}</h3>
 
-                {product.brand && (
-                  <p>{product.brand}</p>
-                )}
+                    {product.brand && (
+                      <p>{product.brand}</p>
+                    )}
 
-                {productListings.length === 1 ? (
-                  <>
-                    <p>{productListings[0].price} kr</p>
-                    <p>{productListings[0].quantity} st</p>
-                    <p>
-                      Bäst före: {productListings[0].best_before}
-                    </p>
-                  </>
-                ) : (
-                  <p>
-                    {productListings.length} olika alternativ
-                  </p>
-                )}
-              </article>
-            ))}
+                    {productListings.length === 1 ? (
+                      <>
+                        <p className="customer-product-quantity">
+                          {productListings[0].quantity} st
+                        </p>
+                      </>
+                    ) : (
+                      <p className="customer-product-options">
+                        {productListings.length} olika alternativ
+                      </p>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
           </section>
         ))
       )}

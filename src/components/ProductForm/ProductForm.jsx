@@ -34,10 +34,15 @@ function ProductForm({ onError, categoryVersion }) {
     if (productName.includes('kvarg')) return '/products/kvarg.jpg'
     if (productName.includes('levain')) return '/products/levain.jpg'
     if (productName.includes('pasta')) return '/products/pasta.jpg'
+    if (productName.includes('mjölk')) return '/products/mjolk.jpg'
+    if (productName.includes('smör')) return '/products/smor.png'
+    if (productName.includes('bönor')) return '/products/bonor.jpg'
+    if (productName.includes('salsa')) return '/products/salsa.jpg'
+    if (productName.includes('wasa')) return '/products/wasaknacke.jpg'
+    if (productName.includes('lingongrova')) return '/products/lingongrova.jpg'
 
     return null
   }
-
   async function handleAddProduct(event) {
     event.preventDefault()
 
