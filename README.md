@@ -1,16 +1,30 @@
-# React + Vite
+# EcoSave
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+EcoSave är ett UF-projekt som går ut på att minska matsvinn genom att göra det enklare att hitta varor som behöver säljas innan de blir för gamla.
 
-Currently, two official plugins are available:
+Projektet består av en kundapp där man kan se butikens aktuella utbud och en admin-del där vi hanterar produkter och varor.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Funktioner
 
-## React Compiler
+- Se aktuellt utbud
+- Produkter grupperade efter kategori
+- Se pris, antal, bäst före-datum och eventuell anledning
+- Admin för att lägga till och hantera produkter
+- Automatisk avaktivering av varor efter bäst före-datum
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Teknik
 
-## Expanding the ESLint configuration
+- React
+- JavaScript
+- Vite
+- Supabase
+- PostgreSQL
+- Git / GitHub
+- Vercel
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Kom igång
+
+Klona repot och installera dependencies:
+
+```bash
+npm install
