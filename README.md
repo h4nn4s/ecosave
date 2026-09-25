@@ -2,7 +2,7 @@
 
 EcoSave är ett UF-projekt som går ut på att minska matsvinn genom att göra det enklare att hitta varor som behöver säljas innan de blir för gamla.
 
-Projektet består av en kundapp där man kan se butikens aktuella utbud och en admin-del där vi hanterar produkter och varor.
+Projektet består av en kundapp där man kan se butikens aktuella utbud och en admin-del där produkter hanteras.
 
 ## Funktioner
 
