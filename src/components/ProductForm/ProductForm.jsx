@@ -98,10 +98,8 @@ function ProductForm({ onError, categoryVersion }) {
           value={newProduct.image_url}
           onChange={(event) =>
             setNewProduct({
-              name: '',
-              brand: '',
-              category_id: '',
-              image_url: '',
+              ...newProduct,
+              image_url: event.target.value,
             })
           }
           placeholder="Bild-URL"

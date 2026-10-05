@@ -13,6 +13,107 @@ import CustomerHome from './components/CustomerHome/CustomerHome'
 import CustomerListings from './components/CustomerListings/CustomerListings'
 
 
+// adminvyn visas olika beroende på om användaren är inloggad
+function Admin({
+  session,
+  email,
+  setEmail,
+  password,
+  setPassword,
+  activeView,
+  setActiveView,
+  categoryVersion,
+  setCategoryVersion,
+  error,
+  setError,
+  handleLogin,
+  handleLogout,
+}) {
+  if (session) {
+    return (
+      <main>
+        <h1>EcoSave Admin</h1>
+
+        <p>Du är inloggad.</p>
+
+        <nav>
+          <button onClick={() => setActiveView('add')}>
+            Lägg till produkt och kategori
+          </button>
+
+          <button onClick={() => setActiveView('products')}>
+            Hantera produkter
+          </button>
+        </nav>
+
+        {activeView === 'add' && (
+          <>
+            <CategoryManager
+              onError={setError}
+              onCategoryChange={() =>
+                setCategoryVersion(
+                  (current) => current + 1
+                )
+              }
+            />
+
+            <ProductForm
+              onError={setError}
+              categoryVersion={categoryVersion}
+            />
+          </>
+        )}
+
+        {activeView === 'products' && (
+          <ProductManager onError={setError} />
+        )}
+
+        {error && <p>{error}</p>}
+
+        <button onClick={handleLogout}>
+          Logga ut
+        </button>
+      </main>
+    )
+  }
+
+  return (
+    <main>
+      <h1>EcoSave Admin</h1>
+
+      <form onSubmit={handleLogin}>
+        <label>
+          E-post
+          <input
+            type="email"
+            value={email}
+            onChange={(event) =>
+              setEmail(event.target.value)
+            }
+          />
+        </label>
+
+        <label>
+          Lösenord
+          <input
+            type="password"
+            value={password}
+            onChange={(event) =>
+              setPassword(event.target.value)
+            }
+          />
+        </label>
+
+        <button type="submit">
+          Logga in
+        </button>
+
+        {error && <p>{error}</p>}
+      </form>
+    </main>
+  )
+}
+
 function App() {
   const [session, setSession] = useState(null)
   const [email, setEmail] = useState('')
@@ -56,98 +157,30 @@ function App() {
     await supabase.auth.signOut()
   }
 
-  // adminvyn visas olika beroende på om användaren är inloggad
-  function Admin() {
-    if (session) {
-      return (
-        <main>
-          <h1>EcoSave Admin</h1>
-
-          <p>Du är inloggad.</p>
-
-          <nav>
-            <button onClick={() => setActiveView('add')}>
-              Lägg till produkt och kategori
-            </button>
-
-            <button onClick={() => setActiveView('products')}>
-              Hantera produkter
-            </button>
-          </nav>
-
-          {activeView === 'add' && (
-            <>
-              <CategoryManager
-                onError={setError}
-                onCategoryChange={() =>
-                  setCategoryVersion(
-                    (current) => current + 1
-                  )
-                }
-              />
-
-              <ProductForm
-                onError={setError}
-                categoryVersion={categoryVersion}
-              />
-            </>
-          )}
-
-          {activeView === 'products' && (
-            <ProductManager onError={setError} />
-          )}
-
-          {error && <p>{error}</p>}
-
-          <button onClick={handleLogout}>
-            Logga ut
-          </button>
-        </main>
-      )
-    }
-
-    return (
-      <main>
-        <h1>EcoSave Admin</h1>
-
-        <form onSubmit={handleLogin}>
-          <label>
-            E-post
-            <input
-              type="email"
-              value={email}
-              onChange={(event) =>
-                setEmail(event.target.value)
-              }
-            />
-          </label>
-
-          <label>
-            Lösenord
-            <input
-              type="password"
-              value={password}
-              onChange={(event) =>
-                setPassword(event.target.value)
-              }
-            />
-          </label>
-
-          <button type="submit">
-            Logga in
-          </button>
-
-          {error && <p>{error}</p>}
-        </form>
-      </main>
-    )
-  }
-
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<CustomerHome />} />
-        <Route path="/admin" element={<Admin />} />
+        <Route
+          path="/admin"
+          element={
+            <Admin
+              session={session}
+              email={email}
+              setEmail={setEmail}
+              password={password}
+              setPassword={setPassword}
+              activeView={activeView}
+              setActiveView={setActiveView}
+              categoryVersion={categoryVersion}
+              setCategoryVersion={setCategoryVersion}
+              error={error}
+              setError={setError}
+              handleLogin={handleLogin}
+              handleLogout={handleLogout}
+            />
+          }
+        />
         <Route path="/utbud" element={<CustomerListings />} />
       </Routes>
     </BrowserRouter>
