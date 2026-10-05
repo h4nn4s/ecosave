@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 
+// hanterar navigationen mellan kundappens sidor
 function CustomerNavigation() {
   return (
     <nav className="customer-navigation">

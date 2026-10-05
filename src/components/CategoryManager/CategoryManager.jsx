@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
+// hanterar kategorier i adminvyn
 function CategoryManager({ onError, onCategoryChange }) {
   const [categories, setCategories] = useState([])
   const [newCategory, setNewCategory] = useState('')
   const [editingCategory, setEditingCategory] = useState(null)
   const [editedCategoryName, setEditedCategoryName] = useState('')
 
+  // hämtar kategorier från databasen
   useEffect(() => {
     async function fetchCategories() {
       const { data, error } = await supabase
@@ -25,6 +27,7 @@ function CategoryManager({ onError, onCategoryChange }) {
     fetchCategories()
   }, [onError])
 
+  // skapar en ny kategori och uppdaterar listan
   async function handleAddCategory(event) {
     event.preventDefault()
 
@@ -51,6 +54,7 @@ function CategoryManager({ onError, onCategoryChange }) {
     setNewCategory('')
   }
 
+  // uppdaterar en befintlig kategori
   async function handleUpdateCategory(event) {
     event.preventDefault()
 
@@ -82,6 +86,7 @@ function CategoryManager({ onError, onCategoryChange }) {
     setEditedCategoryName('')
   }
 
+  // tar bort en kategori efter bekräftelse
   async function handleDeleteCategory(category) {
     const confirmed = window.confirm(
       `Är du säker på att du vill ta bort kategorin "${category.name}"?`
@@ -102,7 +107,7 @@ function CategoryManager({ onError, onCategoryChange }) {
     setCategories((current) =>
       current.filter((item) => item.id !== category.id)
     )
-    
+
     onCategoryChange()
   }
 

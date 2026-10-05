@@ -1,3 +1,6 @@
+// appens huvudkomponent: hanterar routing mellan kund- och adminvyn
+// samt inloggning och session med Supabase
+
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
@@ -9,6 +12,7 @@ import ProductForm from './components/ProductForm/ProductForm'
 import CustomerHome from './components/CustomerHome/CustomerHome'
 import CustomerListings from './components/CustomerListings/CustomerListings'
 
+
 function App() {
   const [session, setSession] = useState(null)
   const [email, setEmail] = useState('')
@@ -17,6 +21,7 @@ function App() {
   const [categoryVersion, setCategoryVersion] = useState(0)
   const [activeView, setActiveView] = useState('add')
 
+  // hämtar aktuell session och uppdaterar vid förändringar i inloggningsstatus
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session)
@@ -31,6 +36,7 @@ function App() {
     return () => subscription.unsubscribe()
   }, [])
 
+  // hanterar inloggning och visar felmeddelande vid felaktiga uppgifter
   async function handleLogin(event) {
     event.preventDefault()
     setError('')
@@ -45,10 +51,12 @@ function App() {
     }
   }
 
+  // loggar ut
   async function handleLogout() {
     await supabase.auth.signOut()
   }
 
+  // adminvyn visas olika beroende på om användaren är inloggad
   function Admin() {
     if (session) {
       return (

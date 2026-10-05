@@ -3,10 +3,13 @@ import { supabase } from '../../lib/supabase'
 
 import CustomerNavigation from '../CustomerNavigation/CustomerNavigation'
 
+// databas → kategorisering → gruppering av produkter → produktdetalj
+
 function CustomerListings() {
   const [listings, setListings] = useState([])
   const [selectedProduct, setSelectedProduct] = useState(null)
 
+  // hämtar aktiva varor från databasen och sorterar efter bäst före-datum
   useEffect(() => {
     async function fetchListings() {
       const { data, error } = await supabase
@@ -37,6 +40,7 @@ function CustomerListings() {
     fetchListings()
   }, [])
 
+  // grupperar varorna efter kategori för att strukturera utbudet
   const groupedListings = listings.reduce((groups, listing) => {
     const category =
       listing.products.categories?.name || 'Övrigt'
@@ -50,6 +54,7 @@ function CustomerListings() {
     return groups
   }, {})
 
+  // samlar flera listningar av samma produkt så att produkten bara visas en gång i utbudet
   const groupedProducts = Object.entries(groupedListings).map(
     ([category, categoryListings]) => {
       const products = categoryListings.reduce((groups, listing) => {
@@ -74,6 +79,7 @@ function CustomerListings() {
     }
   )
 
+  // visar detaljer för vald produkt och hanterar flera alternativ med olika pris eller bäst före-datum
   if (selectedProduct) {
     return (
       <main className="customer-page">
@@ -131,7 +137,7 @@ function CustomerListings() {
         )}
 
         <CustomerNavigation />
-      
+
       </main>
     )
   }

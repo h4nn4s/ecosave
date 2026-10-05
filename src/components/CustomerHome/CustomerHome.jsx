@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 
 import CustomerNavigation from '../CustomerNavigation/CustomerNavigation'
 
+// visar startsidan för kundappen
 function CustomerHome() {
   return (
     <main className="customer-page customer-home">

@@ -35,6 +35,7 @@ function ProductManager({ onError }) {
     reason: '',
   })
 
+  // hämtar produkter, kategorier, produktinfo och butiker från databasen
   useEffect(() => {
     async function fetchData() {
       const { data: productData, error: productError } = await supabase
@@ -96,10 +97,12 @@ function ProductManager({ onError }) {
     fetchData()
   }, [onError])
 
+  // beräknar när produktinfo ska inaktiveras utifrån bäst före-datum
   function getExpiresAt(bestBefore) {
     return `${bestBefore}T22:00:00`
   }
 
+  // uppdaterar grundläggande information om en produkt
   async function handleUpdateProduct(event) {
     event.preventDefault()
 
@@ -139,7 +142,8 @@ function ProductManager({ onError }) {
     })
   }
 
-  async function handleToggleProductActive(product) {
+  // aktiverar eller inaktiverar en produkt och dess produktinfo
+  async function handleProductStatusChange(product) {
     const newActive = !product.active
 
     const { error } = await supabase
@@ -158,9 +162,9 @@ function ProductManager({ onError }) {
       current.map((item) =>
         item.id === product.id
           ? {
-              ...item,
-              active: newActive,
-            }
+            ...item,
+            active: newActive,
+          }
           : item
       )
     )
@@ -170,15 +174,16 @@ function ProductManager({ onError }) {
         current.map((listing) =>
           listing.product_id === product.id
             ? {
-                ...listing,
-                active: false,
-              }
+              ...listing,
+              active: false,
+            }
             : listing
         )
       )
     }
   }
 
+  // lägger till produktinfo med pris, antal, bäst före-datum och eventuell anledning
   async function handleAddListing(event, productId) {
     event.preventDefault()
 
@@ -238,6 +243,7 @@ function ProductManager({ onError }) {
     setAddingListingFor(null)
   }
 
+  // uppdaterar befintlig produktinfo
   async function handleUpdateListing(listingId) {
     if (
       !editedListing.store_id ||
@@ -297,7 +303,7 @@ function ProductManager({ onError }) {
     })
   }
 
-  async function handleToggleListingActive(listing) {
+  async function handleListingStatusChange(listing) {
     const newActive = !listing.active
 
     const { data, error } = await supabase
@@ -338,6 +344,7 @@ function ProductManager({ onError }) {
     ).length
   }
 
+  // grupperar produkterna efter kategori för att strukturera adminvyn
   const groupedProducts = products.reduce((groups, product) => {
     const category =
       categories.find(
@@ -527,7 +534,7 @@ function ProductManager({ onError }) {
                                     : 'activate'
                                 }
                                 onClick={() =>
-                                  handleToggleProductActive(
+                                  handleProductStatusChange(
                                     product
                                   )
                                 }
@@ -686,7 +693,7 @@ function ProductManager({ onError }) {
                                     .map((listing) => (
                                       <tr key={listing.id}>
                                         {editingListing?.id ===
-                                        listing.id ? (
+                                          listing.id ? (
                                           <>
                                             <td>
                                               <input
@@ -885,7 +892,7 @@ function ProductManager({ onError }) {
                                                     : 'activate'
                                                 }
                                                 onClick={() =>
-                                                  handleToggleListingActive(
+                                                  handleListingStatusChange(
                                                     listing
                                                   )
                                                 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
+// hanterar formulärt för att skapa nya produkter
 function ProductForm({ onError, categoryVersion }) {
   const [categories, setCategories] = useState([])
   const [newProduct, setNewProduct] = useState({
@@ -10,6 +11,7 @@ function ProductForm({ onError, categoryVersion }) {
     image_url: '',
   })
 
+  // hämtar kategorier från databasen för produktformuläret
   useEffect(() => {
     async function fetchCategories() {
       const { data, error } = await supabase
@@ -28,6 +30,7 @@ function ProductForm({ onError, categoryVersion }) {
     fetchCategories()
   }, [onError, categoryVersion])
 
+  // kopplar produkter till rätt bild utifrån produktnamnet
   function getProductImage(name) {
     const productName = name.trim().toLowerCase()
 
@@ -43,6 +46,8 @@ function ProductForm({ onError, categoryVersion }) {
 
     return null
   }
+
+  // skapar en ny produkt och sparar den i databasen
   async function handleAddProduct(event) {
     event.preventDefault()
 
